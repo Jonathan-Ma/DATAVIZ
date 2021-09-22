@@ -18,12 +18,15 @@ for i in df['Attack']:
 b = []
 c = 0
 for i, elem in enumerate(a):
-    c = c + a[i - 1]
+    if a[i - 1] < len(a):
+        c = c + a[i]
+    else:
+        c = c + a[i - 1]
     b.append(c)
-print(b)
-df['tA'] = b
+
+df['Total Attacks'] = b
 # data for line chart and title change for y axes
-fig = px.line(df, x='Date', y=['Attack', 'Death', 'tA'], markers=True)
+fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks'], markers=True)
 fig.update_yaxes(title_text='Cases', title_font_size=20)
 fig.update_xaxes(tickangle=0, dtick=7, title_font_size=20)
 # app layout
@@ -33,10 +36,14 @@ app.layout = html.Div([
             columns=[
                 {"name": i, "id": i} for i in df.columns
             ],
+
             data=df.to_dict('records'),
             fixed_rows={'headers': True, 'data': 0},
             page_action='none',
-            style_table={'height': '500px', 'overflowX': 'auto'}
+            style_table={'height': '500px', 'overflowX': 'auto'},
+            style_cell_conditional=[
+                {'if': {'column_id': 'Total Attacks', },
+                 'display': 'None', }]
         )
     ]),
     html.Div([
