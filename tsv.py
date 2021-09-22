@@ -1,19 +1,23 @@
 import dash
 import dash_table
 import pandas as pd
-from collections import OrderedDict
+import dash_html_components as html
+
 
 app = dash.Dash(__name__)
 
 df = pd.read_csv('choleraDeaths.tsv', sep='\t')
-
-app.layout = dash_table.DataTable(
+df['Total'] = df['Attack'] + df['Death']
+app.layout = html.Div([dash_table.DataTable(
+    columns=[
+        {"name": i, "id": i} for i in df.columns
+    ],
     data=df.to_dict('records'),
-    columns=[{'id': c, 'name': c} for c in df.columns],
     page_action='none',
-    style_table={'height': '300px', 'overflowY': 'auto'}
-)
+    style_table={'height': '500px', 'overflowY': 'auto'},
+    style_cell={'textAlign': 'center'}
+)])
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
