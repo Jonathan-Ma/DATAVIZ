@@ -1,36 +1,55 @@
 import dash
 import dash_table
 import pandas as pd
-from dash import html, Output
+from dash import html
 import dash_core_components as dcc
 import plotly.express as px
-import plotly.graph_objs as go
 
 app = dash.Dash(__name__)
 # reading in tsv file
 df = pd.read_csv('choleraDeaths.tsv', sep='\t')
 df['Total'] = df['Attack'] + df['Death']
 
-a = []
+# loop through attack append in new list
+attack = []
 for i in df['Attack']:
-    a.append(i)
-
-b = []
+    attack.append(i)
+# make another list and enumerate list a to access prev elem
+a = []
 c = 0
-for i, elem in enumerate(a):
-    if a[i - 1] < len(a):
-        c = c + a[i]
+for i, elem in enumerate(attack):
+    if attack[i - 1] < len(attack):
+        c = c + attack[i]
     else:
-        c = c + a[i - 1]
+        c = c + attack[i - 1]
+    a.append(c)
+df['Total Attacks'] = a
+# same procedure for total deaths
+c = 0
+deaths = []
+for i in df['Death']:
+    deaths.append(i)
+b = []
+for i, elem in enumerate(deaths):
+    if deaths[i - 1] < len(deaths):
+        c += deaths[i]
+    else:
+        c += deaths[i - 1]
     b.append(c)
+df['Total Deaths'] = b
 
-df['Total Attacks'] = b
 # data for line chart and title change for y axes
-fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks'], markers=True)
+fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks', 'Total Deaths'], markers=True)
 fig.update_yaxes(title_text='Cases', title_font_size=20)
 fig.update_xaxes(tickangle=0, dtick=7, title_font_size=20)
 # app layout
 app.layout = html.Div([
+    html.Div(
+        html.H1('Attack on Cholera', style={'textAlign': 'center', 'color': '#7FDBFF'})
+    ),
+    html.Div(
+        html.H1('About', style={'textAlign': 'left'})
+    ),
     html.Div([
         dash_table.DataTable(
             columns=[
@@ -43,6 +62,8 @@ app.layout = html.Div([
             style_table={'height': '500px', 'overflowX': 'auto'},
             style_cell_conditional=[
                 {'if': {'column_id': 'Total Attacks', },
+                 'display': 'None', },
+                {'if': {'column_id': 'Total Deaths', },
                  'display': 'None', }]
         )
     ]),
