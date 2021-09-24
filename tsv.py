@@ -42,43 +42,52 @@ df['Total Deaths'] = b
 fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks', 'Total Deaths'], markers=True)
 fig.update_yaxes(title_text='Cases', title_font_size=20)
 fig.update_xaxes(tickangle=0, dtick=7, title_font_size=20)
+
 # app layout
 app.layout = html.Div([
     html.Div(
         html.H1('Attack on Cholera', style={'textAlign': 'center', 'color': '#7FDBFF'})
     ),
-    html.Div(
-        html.H1('About', style={'textAlign': 'left'})
-    ),
+
+    html.Div([
+        "Pages",
+        dcc.Dropdown(id="dropdown",
+                     options=[{'label': 'About', 'value': 'about'}]
+                     )
+    ]),
+
     html.Div([
         dash_table.DataTable(
             columns=[
                 {"name": i, "id": i} for i in df.columns
             ],
-
             data=df.to_dict('records'),
             fixed_rows={'headers': True, 'data': 0},
             page_action='none',
-            style_table={'height': '500px', 'overflowX': 'auto'},
+            style_table={'height': '500px', 'width': '300px'},
             style_cell_conditional=[
+                {'if': {'column_id': 'Attack'}, 'width': '50px'},
+                {'if': {'column_id': 'Death'}, 'width': '50px'},
+                {'if': {'column_id': 'Total'}, 'width': '50px'},
                 {'if': {'column_id': 'Total Attacks', },
                  'display': 'None', },
                 {'if': {'column_id': 'Total Deaths', },
-                 'display': 'None', }]
-        )
-    ]),
-    html.Div([
+                 'display': 'None', },
+            ]
+        )], style={'display': 'inline-block', 'width': '70vh', 'overflow': 'auto'}
+    ),
 
+    html.Div([
         dcc.Graph(id="graph", figure=fig,
                   config={
                       'scrollZoom': True,
                       'doubleClick': 'reset',
                       'showTips': True,
                       'displayModeBar': 'hover',
-                      'modeBarButtonsToRemove': ['toImage']
-                  }
-                  )
-    ])
+                      'modeBarButtonsToRemove': ['toImage'],
+
+                  })
+    ], style={'display': 'inline-block', 'width': '50vw'})
 ])
 
 if __name__ == '__main__':
