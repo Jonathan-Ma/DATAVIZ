@@ -14,8 +14,8 @@ app.layout = html.Div(
             html.Div(
                 [
                     dcc.Dropdown(
-                        id="oxygen",
-                        options=[{"label": s, "value": s} for s in ['Attack', 'Death']],
+                        id="dropdown",
+                        options=[{'label': 'Attack', 'value': 'atk'}, {'label': 'Death', 'value': 'dth'}],
                         value=[],
                         multi=True,
                     )
@@ -23,6 +23,8 @@ app.layout = html.Div(
             )
         ),
         html.Div(id="graph-container"),
+        html.Div(id="graph-container2"),
+
     ]
 )
 
@@ -30,16 +32,40 @@ app.layout = html.Div(
 @app.callback(
     dash.dependencies.Output("graph-container", "children"),
     [
-        dash.dependencies.Input("oxygen", "value"),
-        dash.dependencies.Input("graph-update", "n_intervals"),
+        dash.dependencies.Input("dropdown", "value"),
     ],
 )
-def update_graph_scatter_2(value, n):
-    if value:
-        # Change the line below to dynamically create the figure based on value
+def update_graph_scatter(value):
+    if 'atk' in value:
         fig = px.scatter(df, x="sepal_width", y="sepal_length")
-        return dcc.Graph(id="live-graph2", figure=fig)
+        return dcc.Graph(figure=fig)
     return html.Div()
+
+
+@app.callback(
+    dash.dependencies.Output("graph-container2", "children"),
+    [
+        dash.dependencies.Input("dropdown", "value"),
+    ],
+)
+def update_graph_scatter2(value):
+    if 'dth' in value:
+        fig = px.scatter_3d(df, x="sepal_width", y="sepal_length", z='petal_width')
+        return dcc.Graph(figure=fig)
+    return html.Div()
+
+
+# @app.callback(
+#     dash.dependencies.Output("graph-container", "children"),
+#     [dash.dependencies.Input("dropdown", "value")
+#      ],
+# )
+# def update_graph_scatter(value):
+#     if value:
+#         # Change the line below to dynamically create the figure based on value
+#         fig = px.scatter_3d(df, x="sepal_width", y="sepal_length", z='petal_width')
+#         return dcc.Graph(id="graph-container2", figure=fig)
+#     return html.Div()
 
 
 if __name__ == '__main__':
