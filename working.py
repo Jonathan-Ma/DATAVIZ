@@ -1,17 +1,25 @@
 import dash
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
-import dash_table
+from dash import dash_table
 import pandas as pd
 import plotly.express as px
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-
+# -----------------------------------------------------------------------------
+# FILE READING
+# -----------------------------------------------------------------------------
 df = pd.read_csv('choleraDeaths.tsv', sep='\t')
+
+naples = pd.read_csv('naplesCholeraAgeSexData.tsv', sep='\t', comment='#')
+# creating total column for first table
 df['Total'] = df['Attack'] + df['Death']
 
+# -----------------------------------------------------------------------------
+# FIRST PART OF PROJECT
+# -----------------------------------------------------------------------------
 # loop through attack append in new list
 attack = []
 for i in df['Attack']:
@@ -44,6 +52,22 @@ df['Total Deaths'] = b
 fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks', 'Total Deaths'], markers=True)
 fig.update_yaxes(title_text='Cases', title_font_size=20)
 fig.update_xaxes(tickangle=0, dtick=7, title_font_size=20)
+
+# -----------------------------------------------------------------------------
+# PART TWO OF PROJECT
+# -----------------------------------------------------------------------------
+
+# making fig for bar chart compare sex and group by age
+fig2 = px.bar(naples, x="Age", y=["Male", "Female"], barmode="group")
+fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'}, yaxis_title="Deaths", font=dict(
+    family="Courier New, monospace",
+    size=20,
+))
+
+
+# -----------------------------------------------------------------------------
+# LAYOUT
+# -----------------------------------------------------------------------------
 # the style arguments for the sidebar. We use position:fixed and a fixed width
 SIDEBAR_STYLE = {
     "position": "fixed",
@@ -66,6 +90,9 @@ CONTENT_STYLE = {
 sidebar = html.Div(
     [
         html.H2("Attack on Cholera", className="display-4"),
+        html.P(
+            "by"
+        ),
         html.A(
             "Jonathan Ma", href="https://jonathan-ma.github.io/"
         ),
@@ -75,7 +102,7 @@ sidebar = html.Div(
             [
                 dbc.NavLink("About", href="/", active="exact"),
                 dbc.NavLink("Attacks and Deaths", href="/atk", active="exact"),
-                dbc.NavLink("Page 2", href="/page-2", active="exact"),
+                dbc.NavLink("Fatalities by age and sex", href="/page-2", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -84,11 +111,14 @@ sidebar = html.Div(
     style=SIDEBAR_STYLE,
 )
 
-content = html.Div(id="page-content")
+content = html.Div(id="page-content", style=CONTENT_STYLE)
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
 
+# -----------------------------------------------------------------------------
+# CALLBACK
+# -----------------------------------------------------------------------------
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
@@ -101,19 +131,19 @@ def render_page_content(pathname):
                 John Snow (no, not King of the North dude), is considered the Father of Epidemiology for his
                 contributions to stopping the 1854 cholera outbreak that killed 616 people. Preceding the 1854 outbreak,
                 there were two main theories as to how cholera spread: [miasma](https://en.wikipedia.org/wiki/Miasma_theory) theory and [germ](https://en.wikipedia.org/wiki/Germ_theory_of_disease) theory.
-                Snow collected and mapped data of the street addresses where there had been cholera deaths.  
-                
-                
+                Snow collected and mapped data of the street addresses where there had been cholera deaths.
+
+
             '''),
                     html.Div(html.Img(src=app.get_asset_url('Cholera-map-zoom.jpg'), style={'height': '50%', 'width': '50%'})
                              ),
                     dcc.Markdown('''
                 *Each hash mark represents a cholera death*\n
-                By hashing the locations of each death, Snow was able to identify a common factor of the victims; they were 
+                By hashing the locations of each death, Snow was able to identify a common factor of the victims; they were
                 all drinking water from the same pump.
                 This brilliant use of data plotted on a map is what we would call data visualization, a simple yet
                 powerful and efficient way to convey data.\n
-                In this project, I attempt to use the data collected by Snow and visually represent what happened in 1854 Broad Street. By plotting simple 
+                In this project, I attempt to use the data collected by Snow and visually represent what happened in 1854 Broad Street. By plotting simple
                 table graphs that depict the attacks and deaths of victims to more complex GIS (geographic information system) that shows locations of deaths.
                 ##### Data
                 [Cholera.zip](https://laulima.hawaii.edu/access/content/group/MAN.XLSICSACM484jl.202210/Cholera.zip)
@@ -123,7 +153,7 @@ def render_page_content(pathname):
                 * Dash
                 * Plotly
                 * Pandas
-                
+
         ''')
                 ], justify="center", align="center", className="h-5", style={'display': 'inline-block'}
             ),
@@ -157,7 +187,7 @@ def render_page_content(pathname):
                     {'if': {'column_id': 'Date'},
                      'text-align': 'center'},
                 ]
-            )], style={'display': 'inline-block', 'overflow': 'auto', 'width': '30vw', 'margin-left': '20vw', 'margin-top': '30vh', "border": "1px black solid"}
+            )], style={'display': 'inline-block', 'overflow': 'auto', 'width': '20vw', 'margin-left': '10vw', 'margin-top': '30vh', "border": "1px black solid"}
         ),
                 html.Div([
                     dcc.Graph(id="graph", figure=fig,
@@ -167,13 +197,34 @@ def render_page_content(pathname):
                                   'showTips': True,
                                   'displayModeBar': 'hover',
                                   'modeBarButtonsToRemove': ['toImage'],
-                              }, style={'height': '48.5vh'}),
+                              },
+                              style={'height': '48.5vh'}),
 
                 ], style={'display': 'inline-block', 'width': '40vw', 'height': '42.5vh', 'margin-left': '100px'})
         )
 
     elif pathname == "/page-2":
-        return html.P("Oh cool, this is page 2!")
+        return html.Div([
+            html.H1('Age and sex'),
+            html.Div(dash_table.DataTable(
+                id='table',
+                columns=[{"name": c, "id": c} for c in naples.columns],
+                data=naples.to_dict('records'),
+                style_header={
+                    'backgroundColor': 'rgb(230, 230, 230)',
+                    'fontWeight': 'bold'
+                },
+                style_table={'height': '500px', 'width': '300px'},
+                style_cell_conditional=[
+                    {'if': {'column_id': 'Age'}, 'width': '50px'},
+                    {'if': {'column_id': 'Male'}, 'width': '50px'},
+                    {'if': {'column_id': 'Female'}, 'width': '50px'}, ]
+            ),style={'display': 'inline-block', 'overflow': 'auto', 'width': '20vw', 'margin-left': '10vw', 'margin-top': '30vh'}),
+            html.Div(
+                dcc.Graph(figure=fig2),
+                style={'display': 'inline-block', 'width': '40vw', 'height': '42.5vh', 'margin-left': '100px'}
+            )
+        ])
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
