@@ -6,20 +6,24 @@ from dash.dependencies import Input, Output
 from dash import dash_table
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 # -----------------------------------------------------------------------------
 # FILE READING
 # -----------------------------------------------------------------------------
-df = pd.read_csv('choleraDeaths.tsv', sep='\t')
 
+df = pd.read_csv('choleraDeaths.tsv', sep='\t')
 naples = pd.read_csv('naplesCholeraAgeSexData.tsv', sep='\t', comment='#')
-# creating total column for first table
-df['Total'] = df['Attack'] + df['Death']
+UK = pd.read_csv('UKcensus1851.csv', sep=',', comment='#')
+
 
 # -----------------------------------------------------------------------------
 # FIRST PART OF PROJECT
 # -----------------------------------------------------------------------------
+
+# creating total column for first table
+df['Total'] = df['Attack'] + df['Death']
 # loop through attack append in new list
 attack = []
 for i in df['Attack']:
@@ -63,7 +67,17 @@ fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'ce
     family="Courier New, monospace",
     size=20,
 ))
+male = UK['male'].sum()
+female = UK['female'].sum()
+labels = ['Male', 'Female']
+values = [male, female]
+# -----------------------------------------------------------------------------
+# PART THREE OF PROJECT
+# -----------------------------------------------------------------------------
 
+pieMale = px.pie(UK, values='male', names='age')
+pieFemale = px.pie(UK, values='female', names='age')
+pieMf = go.Figure(data=[go.Pie(values=values, labels=labels)])
 
 # -----------------------------------------------------------------------------
 # LAYOUT
@@ -102,7 +116,8 @@ sidebar = html.Div(
             [
                 dbc.NavLink("About", href="/", active="exact"),
                 dbc.NavLink("Attacks and Deaths", href="/atk", active="exact"),
-                dbc.NavLink("Fatalities by age and sex", href="/page-2", active="exact"),
+                dbc.NavLink("Fatalities by Age and Sex", href="/page-2", active="exact"),
+                dbc.NavLink("UK Census", href="/page-3", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -219,12 +234,38 @@ def render_page_content(pathname):
                     {'if': {'column_id': 'Age'}, 'width': '50px'},
                     {'if': {'column_id': 'Male'}, 'width': '50px'},
                     {'if': {'column_id': 'Female'}, 'width': '50px'}, ]
-            ),style={'display': 'inline-block', 'overflow': 'auto', 'width': '20vw', 'margin-left': '10vw', 'margin-top': '30vh'}),
+            ), style={'display': 'inline-block', 'overflow': 'auto', 'margin-left': '10vw', 'margin-top': '30vh'}),
             html.Div(
                 dcc.Graph(figure=fig2),
                 style={'display': 'inline-block', 'width': '40vw', 'height': '42.5vh', 'margin-left': '100px'}
             )
         ])
+    elif pathname == "/page-3":
+        return html.Div([
+            html.Div(html.H1('Male'), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
+            html.Div(dash_table.DataTable(
+                id='table2',
+                columns=[{"name": c, "id": c} for c in UK.columns],
+                data=UK.to_dict('records'),
+                style_table={'height': '300px', 'width': '300px'},
+                style_header={
+                    'backgroundColor': 'rgb(230, 230, 230)',
+                    'fontWeight': 'bold'
+                },
+                style_cell_conditional=[
+                    {'if': {'column_id': 'age'}, 'width': '100px'},
+                    {'if': {'column_id': 'male'}, 'width': '100px'},
+                    {'if': {'column_id': 'female'}, 'width': '100px'}, ]
+            ), style={'border': '1px solid black', 'width': '300px'}),
+
+            html.Div(html.H1('Male'), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
+            html.Div(html.H1('Female'), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
+            html.Div(dcc.Graph(figure=pieMale), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
+            html.Div(dcc.Graph(figure=pieFemale), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
+            html.Div(html.H1('Male'), style={'border': '1px solid black', 'width': '900px'}),
+            html.Div(dcc.Graph(figure=pieMf), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'})
+        ], style={'margin-left': '20px'})
+
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
         [
