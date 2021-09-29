@@ -4,71 +4,19 @@ import dash_core_components as dcc
 import plotly.express as px
 import dash_bootstrap_components as dbc
 
-df = px.data.iris()
 
-app = dash.Dash(__name__)
-app.layout = html.Div(
-    [
-        dcc.Interval(id="graph-update", interval=10000, n_intervals=0),
-        dbc.Col(
-            html.Div(
-                [
-                    dcc.Dropdown(
-                        id="dropdown",
-                        options=[{'label': 'About', 'value': 'abt'},{'label': 'Attack', 'value': 'atk'}, {'label': 'Death', 'value': 'dth'}],
-                        value=['abt'],
-                        multi=True,
-                    )
-                ]
-            )
-        ),
-        html.Div(id="graph-container"),
-        html.Div(id="graph-container2"),
-        html.Div(id="graph-container3"),
+import pandas as pd
+us_cities = pd.read_csv("choleraPumpLocations.csv")
 
-
-    ]
-)
-
-
-@app.callback(
-    dash.dependencies.Output("graph-container", "children"),
-    [
-        dash.dependencies.Input("dropdown", "value"),
-    ],
-)
-def update_graph_scatter(value):
-    if 'atk' in value:
-        fig = px.scatter(df, x="sepal_width", y="sepal_length")
-        return dcc.Graph(figure=fig)
-    #return html.Div()
-
-
-@app.callback(
-    dash.dependencies.Output("graph-container2", "children"),
-    [
-        dash.dependencies.Input("dropdown", "value"),
-    ],
-)
-def update_graph_scatter2(value):
-    if 'dth' in value:
-        fig = px.scatter_3d(df, x="sepal_width", y="sepal_length", z='petal_width')
-        return dcc.Graph(figure=fig)
-    #return html.Div()
-
-@app.callback(
-    dash.dependencies.Output("graph-container3", "children"),
-    [dash.dependencies.Input("dropdown", "value")
-     ],
-)
-def update_about(value):
-    if 'abt' in value:
-        return dcc.Markdown('''
-        # About
-        
-        ''')
-    # return html.Div()
-
+app = dash.Dash()
+fig = px.scatter_mapbox(us_cities, lat="lat", lon="long",
+                        zoom=14, height=300)
+fig.update_layout(mapbox_style="stamen-toner")
+fig.update_layout(margin={"r": 1000, "t": 0, "l": 1000, "b": 0})
+fig.update_traces(marker=dict(size=12),selector=dict(mode='markers'))
+app.layout = html.Div([
+    dcc.Graph(figure=fig)
+])
 
 if __name__ == '__main__':
     app.run_server(debug=True)

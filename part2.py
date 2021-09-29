@@ -28,6 +28,12 @@ pieFemale = px.pie(UK, values='female', names='age')
 pieMf = go.Figure(data=[go.Pie(values=values, labels=labels)])
 barUK = px.bar(UK, x="age", y=["male", "female"], barmode="group")
 ###################################
+# -----------------------------------------------------------------
+# PART THREE STUFF
+# -----------------------------------------------------------------
+
+
+
 
 app.layout = html.Div([
     html.Div(
@@ -63,6 +69,8 @@ app.layout = html.Div([
     html.Div(dcc.Graph(figure=pieFemale), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
     html.Div(dcc.Graph(figure=barUK)),
     html.Div(dcc.Graph(figure=pieMf), style={'border': '1px solid black', 'width': '900px'}),
+
+
 
 ], style={'margin-left': '200px'})
 
