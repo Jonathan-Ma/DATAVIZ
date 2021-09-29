@@ -17,7 +17,6 @@ df = pd.read_csv('choleraDeaths.tsv', sep='\t')
 naples = pd.read_csv('naplesCholeraAgeSexData.tsv', sep='\t', comment='#')
 UK = pd.read_csv('UKcensus1851.csv', sep=',', comment='#')
 
-
 # -----------------------------------------------------------------------------
 # FIRST PART OF PROJECT
 # -----------------------------------------------------------------------------
@@ -56,7 +55,7 @@ df['Total Deaths'] = b
 fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks', 'Total Deaths'], markers=True)
 fig.update_yaxes(title_text='Cases', title_font_size=20)
 fig.update_xaxes(tickangle=0, dtick=7, title_font_size=20)
-
+fig.update_layout(title={'text': 'Death Cases', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'}, yaxis_title="Deaths", font=dict(family="Courier New, monospace", size=20,))
 # -----------------------------------------------------------------------------
 # PART TWO OF PROJECT
 # -----------------------------------------------------------------------------
@@ -67,17 +66,24 @@ fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'ce
     family="Courier New, monospace",
     size=20,
 ))
-male = UK['male'].sum()
-female = UK['female'].sum()
-labels = ['Male', 'Female']
-values = [male, female]
+
 # -----------------------------------------------------------------------------
 # PART THREE OF PROJECT
 # -----------------------------------------------------------------------------
 
+barUK = px.bar(UK, x="age", y=["male", "female"], barmode="group")
+barUK.update_layout(title='Male vs Female Population', yaxis_title='Population')
+UK['Total'] = UK['male'] + UK['female']
+male = UK['male'].sum()
+female = UK['female'].sum()
+labels = ['Male', 'Female']
+values = [male, female]
 pieMale = px.pie(UK, values='male', names='age')
 pieFemale = px.pie(UK, values='female', names='age')
 pieMf = go.Figure(data=[go.Pie(values=values, labels=labels)])
+pieMale.update_layout(title='Male Population Age Distribution')
+pieFemale.update_layout(title='Female Population Age Distribution')
+pieMf.update_layout(title='Female vs Male Population')
 
 # -----------------------------------------------------------------------------
 # LAYOUT
@@ -118,6 +124,7 @@ sidebar = html.Div(
                 dbc.NavLink("Attacks and Deaths", href="/atk", active="exact"),
                 dbc.NavLink("Fatalities by Age and Sex", href="/page-2", active="exact"),
                 dbc.NavLink("UK Census", href="/page-3", active="exact"),
+                dbc.NavLink("GIS", href="/page-4", active="exact"),
             ],
             vertical=True,
             pills=True,
@@ -178,49 +185,49 @@ def render_page_content(pathname):
         )
 
     elif pathname == "/atk":
-        return (html.Div([
-            dash_table.DataTable(
-                columns=[
-                    {"name": i, "id": i} for i in df.columns
-                ],
-                data=df.to_dict('records'),
-                fixed_rows={'headers': True, 'data': 0},
-                page_action='none',
-                style_table={'height': '100vh', 'width': '100%'},
-                style_header={
-                    'backgroundColor': 'rgb(230, 230, 230)',
-                    'fontWeight': 'bold'
-                },
-                style_cell_conditional=[
-                    # {'if': {'column_id': 'Attack'}, 'width': '50px'},
-                    # {'if': {'column_id': 'Death'}, 'width': '50px'},
-                    # {'if': {'column_id': 'Total'}, 'width': '50px'},
-                    {'if': {'column_id': 'Total Attacks', },
-                     'display': 'None', },
-                    {'if': {'column_id': 'Total Deaths', },
-                     'display': 'None', },
-                    {'if': {'column_id': 'Date'},
-                     'text-align': 'center'},
-                ]
-            )], style={'display': 'inline-block', 'overflow': 'auto', 'width': '20vw', 'margin-left': '10vw', 'margin-top': '30vh', "border": "1px black solid"}
-        ),
-                html.Div([
-                    dcc.Graph(id="graph", figure=fig,
-                              config={
-                                  'scrollZoom': True,
-                                  'doubleClick': 'reset',
-                                  'showTips': True,
-                                  'displayModeBar': 'hover',
-                                  'modeBarButtonsToRemove': ['toImage'],
-                              },
-                              style={'height': '48.5vh'}),
-
-                ], style={'display': 'inline-block', 'width': '40vw', 'height': '42.5vh', 'margin-left': '100px'})
+        return (
+            html.Div(
+                dash_table.DataTable(
+                    columns=[
+                        {"name": i, "id": i} for i in df.columns
+                    ],
+                    data=df.to_dict('records'),
+                    fixed_rows={'headers': True, 'data': 0},
+                    page_action='none',
+                    style_table={'height': '100vh', 'width': '100%'},
+                    style_header={
+                        'backgroundColor': 'rgb(230, 230, 230)',
+                        'fontWeight': 'bold'
+                    },
+                    style_cell_conditional=[
+                        # {'if': {'column_id': 'Attack'}, 'width': '50px'},
+                        # {'if': {'column_id': 'Death'}, 'width': '50px'},
+                        # {'if': {'column_id': 'Total'}, 'width': '50px'},
+                        {'if': {'column_id': 'Total Attacks', },
+                         'display': 'None', },
+                        {'if': {'column_id': 'Total Deaths', },
+                         'display': 'None', },
+                        {'if': {'column_id': 'Date'},
+                         'text-align': 'center'},
+                    ]
+                ), style={'display': 'inline-block', 'overflow': 'auto', 'width': '20vw', 'margin-left': '13vw', 'margin-top': '30vh', "border-bottom": "1px black solid", "border-left": "1px black solid"}
+            ),
+            html.Div(
+                dcc.Graph(id="graph", figure=fig,
+                          config={
+                              'scrollZoom': True,
+                              'doubleClick': 'reset',
+                              'showTips': True,
+                              'displayModeBar': 'hover',
+                              'modeBarButtonsToRemove': ['toImage'],
+                          },
+                          style={'height': '597px'}
+                          ), style={'display': 'inline-block', 'width': '40vw', 'height': '600px', 'margin-left': '70px', "border": "1px black solid"}
+            )
         )
 
     elif pathname == "/page-2":
         return html.Div([
-            html.H1('Age and sex'),
             html.Div(dash_table.DataTable(
                 id='table',
                 columns=[{"name": c, "id": c} for c in naples.columns],
@@ -229,41 +236,47 @@ def render_page_content(pathname):
                     'backgroundColor': 'rgb(230, 230, 230)',
                     'fontWeight': 'bold'
                 },
-                style_table={'height': '500px', 'width': '300px'},
+                style_table={'height': '', 'width': '300px'},
                 style_cell_conditional=[
                     {'if': {'column_id': 'Age'}, 'width': '50px'},
                     {'if': {'column_id': 'Male'}, 'width': '50px'},
-                    {'if': {'column_id': 'Female'}, 'width': '50px'}, ]
-            ), style={'display': 'inline-block', 'overflow': 'auto', 'margin-left': '10vw', 'margin-top': '30vh'}),
+                    {'if': {'column_id': 'Female'}, 'width': '50px'},
+                    {'if': {'column_id': 'Age'}, 'text-align': 'center'}
+                ]
+            ), style={'border-bottom': '1px solid black', 'border-left': '1px solid black','display': 'inline-block', 'overflow': 'auto', 'margin-top': '30vh', 'margin-left': '10vw'}),
             html.Div(
                 dcc.Graph(figure=fig2),
-                style={'display': 'inline-block', 'width': '40vw', 'height': '42.5vh', 'margin-left': '100px'}
+                style={'border': '1px solid black', 'display': 'inline-block', 'width': '50vw', 'margin-left': '70px', 'margin-top': '300px'}
             )
         ])
     elif pathname == "/page-3":
         return html.Div([
-            html.Div(html.H1('Male'), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
-            html.Div(dash_table.DataTable(
-                id='table2',
-                columns=[{"name": c, "id": c} for c in UK.columns],
-                data=UK.to_dict('records'),
-                style_table={'height': '300px', 'width': '300px'},
-                style_header={
-                    'backgroundColor': 'rgb(230, 230, 230)',
-                    'fontWeight': 'bold'
-                },
-                style_cell_conditional=[
-                    {'if': {'column_id': 'age'}, 'width': '100px'},
-                    {'if': {'column_id': 'male'}, 'width': '100px'},
-                    {'if': {'column_id': 'female'}, 'width': '100px'}, ]
-            ), style={'border': '1px solid black', 'width': '300px'}),
+            html.Div([
+                html.Div(html.P('Census Age Data for Men and Women', style={'font': 'monospace'}), style={'margin-bottom': '30px', }),
+                html.Div(
+                    dash_table.DataTable(
+                        id='table2',
+                        columns=[{"name": x, "id": x} for x in UK.columns],
+                        data=UK.to_dict('records'),
+                        style_table={'height': '310px', 'width': '344px'},
+                        style_header={
+                            'backgroundColor': 'rgb(230, 230, 230)',
+                            'fontWeight': 'bold'
+                        },
+                        style_cell_conditional=[
+                            {'if': {'column_id': 'age'}, 'width': '100px'},
+                            {'if': {'column_id': 'male'}, 'width': '100px'},
+                            {'if': {'column_id': 'female'}, 'width': '100px'},
+                            {'if': {'column_id': 'Total'}, 'width': '100px'}]
+                    ), style={'width': '330px'}
+                ),
+                html.Div(
+                    (dcc.Graph(figure=barUK)), style={'width': '900px', 'margin-top': '60px'}),
+            ]),
 
-            html.Div(html.H1('Male'), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
-            html.Div(html.H1('Female'), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
-            html.Div(dcc.Graph(figure=pieMale), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
-            html.Div(dcc.Graph(figure=pieFemale), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'}),
-            html.Div(html.H1('Male'), style={'border': '1px solid black', 'width': '900px'}),
-            html.Div(dcc.Graph(figure=pieMf), style={'border': '1px solid black', 'width': '900px', 'display': 'inline-block'})
+            html.Div(dcc.Graph(figure=pieMale), style={'width': '600px', 'display': 'inline-block'}),
+            html.Div(dcc.Graph(figure=pieFemale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '80px'}),
+            html.Div(dcc.Graph(figure=pieMf), style={'width': '600px', 'display': 'inline-block', 'margin-top': '50px'})
         ], style={'margin-left': '20px'})
 
     # If the user tries to reach a different page, return a 404 message
