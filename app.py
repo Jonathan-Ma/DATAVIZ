@@ -326,12 +326,12 @@ def render_page_content(pathname):
                     ), style={'width': '330px', 'margin-left': '5vw'}
                 ),
                 html.Div(
-                    (dcc.Graph(figure=barUK)), style={'width': '900px', 'border': '1px solid black', 'display': 'inline-block', 'margin-left': '5vw'}),
-                html.Div(dcc.Graph(figure=pieMf), style={'width': '400px', 'display': 'inline-block', 'border': '1px solid black', 'margin-left': '5vw'})
+                    (dcc.Graph(figure=barUK)), style={'width': '900px', 'display': 'inline-block', 'margin-left': '5vw'}),
+                html.Div(dcc.Graph(figure=pieMf), style={'width': '400px', 'display': 'inline-block', 'margin-left': '5vw'})
             ]),
 
-            html.Div(dcc.Graph(figure=pieMale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5vw', 'border': '1px solid black'}),
-            html.Div(dcc.Graph(figure=pieFemale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5vw', 'border': '1px solid black'}),
+            html.Div(dcc.Graph(figure=pieMale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5vw'}),
+            html.Div(dcc.Graph(figure=pieFemale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5vw'}),
 
         ], style={'margin-left': '20px'})
 
