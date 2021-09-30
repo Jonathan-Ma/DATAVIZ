@@ -1,19 +1,44 @@
-import dash
-import dash_html_components as html
-import dash_core_components as dcc
-import plotly.express as px
-import dash_bootstrap_components as dbc
-
-
+import plotly.graph_objects as go
 import pandas as pd
-us_cities = pd.read_csv("choleraPumpLocations.csv")
+from dash import html
+from dash import dcc
+import dash
 
+mapbox_access_token = 'pk.eyJ1IjoibGlnZ21hIiwiYSI6ImNrdTZhdzJ5NDU4a3Eyd28yN200Y2hjcWYifQ.Srqhm05N6Silps_KAbRq4g'
 app = dash.Dash()
-fig = px.scatter_mapbox(us_cities, lat="lat", lon="long",
-                        zoom=14, height=300)
-fig.update_layout(mapbox_style="stamen-toner")
-fig.update_layout(margin={"r": 1000, "t": 0, "l": 1000, "b": 0})
-fig.update_traces(marker=dict(size=12),selector=dict(mode='markers'))
+df = pd.read_csv('choleraPumpLocations.csv')
+site_lat = df.lat
+site_lon = df.long
+
+fig = go.Figure()
+
+fig.add_trace(go.Scattermapbox(
+    lat=site_lat,
+    lon=site_lon,
+    mode='markers',
+    marker=go.scattermapbox.Marker(
+        size=17,
+        color='rgb(255, 0, 0)',
+        opacity=0.5
+    ),
+    hoverinfo='text',
+
+))
+fig.update_layout(
+    autosize=True,
+    hovermode='closest',
+    mapbox=dict(
+        accesstoken=mapbox_access_token,
+        bearing=0,
+        center=dict(
+            lat=51.512354,
+            lon=-0.13163
+        ),
+        pitch=0,
+        zoom=13
+    ),
+)
+
 app.layout = html.Div([
     dcc.Graph(figure=fig)
 ])
