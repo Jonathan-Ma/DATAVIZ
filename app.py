@@ -54,10 +54,13 @@ for i, elem in enumerate(deaths):
 df['Total Deaths'] = b
 
 # data for line chart and title change for y axes
-fig = px.line(df, x='Date', y=['Attack', 'Death', 'Total Attacks', 'Total Deaths'], markers=True)
+fig = px.line(df, x='Date', y=['Attack', 'Death'], markers=False)
+
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Deaths'], mode='markers', name='Total Deaths'))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Attacks'], mode='markers', name='Total Attacks'))
 
 fig.update_yaxes(title_text='Cases', title_font_size=20)
-fig.update_xaxes(tickangle=0, dtick=11, title_font_size=20)
+fig.update_xaxes(tickangle=0, dtick=16, title_font_size=20)
 fig.update_layout(title={'text': 'Death Cases', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'}, yaxis_title="Deaths", font=dict(family="Courier New, monospace", size=20, ))
 # -----------------------------------------------------------------------------
 # PART TWO OF PROJECT
@@ -79,7 +82,7 @@ barUK.update_layout(title='Male vs Female Population', yaxis_title='Population')
 UK['Total'] = UK['male'] + UK['female']
 male = UK['male'].sum()
 female = UK['female'].sum()
-labels = ['Female', 'Male']
+labels = ['female', 'male']
 values = [male, female]
 pieMale = px.pie(UK, values='male', names='age')
 pieFemale = px.pie(UK, values='female', names='age')
@@ -251,7 +254,7 @@ def render_page_content(pathname):
                     data=df.to_dict('records'),
                     fixed_rows={'headers': True, 'data': 0},
                     page_action='none',
-                    style_table={'height': '100vh', 'width': '100%'},
+                    style_table={'height': '100vh', 'width': '360px'},
                     style_header={
                         'backgroundColor': 'rgb(230, 230, 230)',
                         'fontWeight': 'bold'
@@ -264,7 +267,7 @@ def render_page_content(pathname):
                         {'if': {'column_id': 'Date'},
                          'text-align': 'center'},
                     ]
-                ), style={'display': 'inline-block', 'overflow': 'auto', 'width': '300px', 'margin-left': '10vw', 'margin-top': '30vh', "border-bottom": "1px black solid", "border-left": "1px black solid"}
+                ), style={'display': 'inline-block', 'overflow': 'auto', 'width': '361', 'margin-left': '10px', 'margin-top': '10px', "border-bottom": "1px black solid", "border-left": "1px black solid"}
             ),
             html.Div(
                 dcc.Graph(id="graph", figure=fig,
@@ -276,7 +279,7 @@ def render_page_content(pathname):
                               'modeBarButtonsToRemove': ['toImage'],
                           },
                           style={'height': '597px'}
-                          ), style={'display': 'inline-block', 'width': '50vw', 'height': '600px', 'margin-left': '70px', "border": "1px black solid"}
+                          ), style={'display': 'inline-block', 'width': '750px', 'height': '600px', 'margin-left': '10px', "border": "1px black solid"}
             )
         )
 
@@ -297,10 +300,10 @@ def render_page_content(pathname):
                     {'if': {'column_id': 'Female'}, 'width': '50px'},
                     {'if': {'column_id': 'Age'}, 'text-align': 'center'}
                 ]
-            ), style={'border-bottom': '1px solid black', 'border-left': '1px solid black', 'display': 'inline-block', 'overflow': 'auto', 'margin-left': '10vw'}),
+            ), style={'border-bottom': '1px solid black', 'border-left': '1px solid black', 'display': 'inline-block', 'overflow': 'auto', 'margin-left': '10px', 'margin-top': '10px'}),
             html.Div(
                 dcc.Graph(figure=fig2),
-                style={'border': '1px solid black', 'display': 'inline-block', 'width': '50vw', 'margin-left': '70px', 'margin-top': '300px'}
+                style={'border': '1px solid black', 'display': 'inline-block', 'width': '750px', 'margin-top': '10px', 'margin-left': '10px'}
             )
         ])
 
@@ -338,7 +341,7 @@ def render_page_content(pathname):
     elif pathname == '/page-4':
         return html.Div([
             dcc.Graph(figure=GIS)
-        ], style={'width': '50vw', 'height': '50vh', 'margin-left': '15vw'})
+        ], style={'width': '50vw', 'height': '50vh', 'margin-left': '5vw'})
 
     # If the user tries to reach a different page, return a 404 message
     return dbc.Jumbotron(
