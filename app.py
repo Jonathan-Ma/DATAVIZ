@@ -60,7 +60,7 @@ fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Deaths'], mode='markers', nam
 fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Attacks'], mode='markers', name='Total Attacks'))
 
 fig.update_yaxes(title_text='Cases', title_font_size=20)
-fig.update_xaxes(tickangle=0, dtick=16, title_font_size=20)
+fig.update_xaxes(tickangle=0, dtick=17, title_font_size=20)
 fig.update_layout(title={'text': 'Death Cases', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'}, yaxis_title="Deaths", font=dict(family="Courier New, monospace", size=20, ))
 # -----------------------------------------------------------------------------
 # PART TWO OF PROJECT
@@ -80,13 +80,17 @@ fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'ce
 barUK = px.bar(UK, x="age", y=["male", "female"], barmode="group")
 barUK.update_layout(title='Male vs Female Population', yaxis_title='Population')
 UK['Total'] = UK['male'] + UK['female']
+
 male = UK['male'].sum()
 female = UK['female'].sum()
-labels = ['female', 'male']
+labels = ['male', 'female']
 values = [male, female]
-pieMale = px.pie(UK, values='male', names='age')
-pieFemale = px.pie(UK, values='female', names='age')
-pieMf = go.Figure(data=[go.Pie(values=values, labels=labels)])
+pieMf = go.Figure(data=[go.Pie(values=values, labels=labels, sort=False)])
+
+pieMale = px.pie(UK, values='male', names='age',color_discrete_sequence=px.colors.sequential.Blues_r)
+pieFemale = px.pie(UK, values='female', names='age', color_discrete_sequence=px.colors.sequential.Purples_r)
+
+
 pieMale.update_layout(title='Male Population Age Distribution')
 pieFemale.update_layout(title='Female Population Age Distribution')
 pieMf.update_layout(title='Female vs Male Population')
@@ -279,7 +283,7 @@ def render_page_content(pathname):
                               'modeBarButtonsToRemove': ['toImage'],
                           },
                           style={'height': '597px'}
-                          ), style={'display': 'inline-block', 'width': '750px', 'height': '600px', 'margin-left': '10px', "border": "1px black solid"}
+                          ), style={'display': 'inline-block', 'width': '750px', 'height': '600px', 'margin-left': '10px', "border": "1px black solid", 'margin-top':'10px'}
             )
         )
 
@@ -310,13 +314,13 @@ def render_page_content(pathname):
     elif pathname == "/page-3":
         return html.Div([
             html.Div([
-                html.Div(html.P('Census Age Data for Men and Women', style={'font': 'monospace', 'margin-left': '5vw'}, ), style={'margin-bottom': '30px', }),
+
                 html.Div(
                     dash_table.DataTable(
                         id='table2',
                         columns=[{"name": x, "id": x} for x in UK.columns],
                         data=UK.to_dict('records'),
-                        style_table={'height': '310px', 'width': '344px'},
+                        style_table={'height': '310px', 'width': '400px'},
                         style_header={
                             'backgroundColor': 'rgb(230, 230, 230)',
                             'fontWeight': 'bold'
@@ -326,15 +330,18 @@ def render_page_content(pathname):
                             {'if': {'column_id': 'male'}, 'width': '100px'},
                             {'if': {'column_id': 'female'}, 'width': '100px'},
                             {'if': {'column_id': 'Total'}, 'width': '100px'}]
-                    ), style={'width': '330px', 'margin-left': '5vw'}
+                    ), style={'width': '401px', 'height': '311px', 'margin-left': '5px', 'border': '1px solid black', 'display': 'inline-block', 'overflow': 'auto'}
                 ),
+                html.Div(dcc.Graph(figure=pieMf, style={'height': '309px'}),
+                         style={'width': '493px', 'height': '311px', 'display': 'inline-block', 'margin-left': '5px',
+                                'border': '1px solid black'}),
                 html.Div(
-                    (dcc.Graph(figure=barUK)), style={'width': '900px', 'display': 'inline-block', 'margin-left': '5vw'}),
-                html.Div(dcc.Graph(figure=pieMf), style={'width': '400px', 'display': 'inline-block', 'margin-left': '5vw'})
+                    (dcc.Graph(figure=barUK)), style={'width': '900px', 'display': 'inline-block', 'margin-left': '5px', 'border': '1px solid black'}),
+                # html.Div(dcc.Graph(figure=pieMf), style={'width': '400px', 'display': 'inline-block', 'margin-left': '5vw', 'border': '1px solid black'})
             ]),
 
-            html.Div(dcc.Graph(figure=pieMale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5vw'}),
-            html.Div(dcc.Graph(figure=pieFemale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5vw'}),
+            html.Div(dcc.Graph(figure=pieMale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5px', 'border': '1px solid black'}),
+            html.Div(dcc.Graph(figure=pieFemale), style={'width': '600px', 'display': 'inline-block', 'margin-left': '5px', 'border': '1px solid black'}),
 
         ], style={'margin-left': '20px'})
 
