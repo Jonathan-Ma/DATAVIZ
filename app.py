@@ -111,13 +111,12 @@ GIS = go.Figure()
 GIS.add_trace(go.Scattermapbox(
     lat=site_lat,
     lon=site_lon,
-    mode='markers',
     name='Pump',
     marker=go.scattermapbox.Marker(
         symbol='drinking-water',
         size=15,
         color='rgb(0, 0, 255)',
-        opacity=1
+
     ),
 ))
 GIS.add_trace(go.Scattermapbox(
@@ -138,6 +137,7 @@ GIS.update_layout(
     height=700,
     width=700,
     hovermode='closest',
+    showlegend=False,
     mapbox=dict(
         accesstoken=mapbox_access_token,
         bearing=0,
