@@ -54,10 +54,12 @@ for i, elem in enumerate(deaths):
 df['Total Deaths'] = b
 
 # data for line chart and title change for y axes
-fig = px.line(df, x='Date', y=['Attack', 'Death'], markers=False)
+fig = px.line()
 
-fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Deaths'], mode='markers', name='Total Deaths'))
-fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Attacks'], mode='markers', name='Total Attacks'))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Deaths'], mode='markers', name='Total Deaths',marker_color="#000000"))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Death'], mode='lines', name='Deaths',marker_color="#000000"))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Attacks'], mode='markers', name='Total Attacks',marker_color="#B8561A"))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Attack'], mode='lines', name='Attacks', marker_color="#B8561A"))
 
 fig.update_yaxes(title_text='Cases', title_font_size=20)
 fig.update_xaxes(tickangle=0, dtick=17, title_font_size=20)
@@ -68,9 +70,11 @@ fig.update_layout(title={'text': 'Death Cases', 'xanchor': 'center', 'x': 0.5, '
 
 # making fig for bar chart compare sex and group by age
 fig2 = px.bar(naples, x="Age", y=["Male", "Female"], barmode="group")
-fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'}, yaxis_title="Deaths", font=dict(
-    family="Courier New, monospace",
-    size=20,
+fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'},
+                   yaxis_title="Deaths",
+                   font=dict(
+                    family="Courier New, monospace",
+                    size=20,
 ))
 
 # -----------------------------------------------------------------------------
@@ -79,7 +83,7 @@ fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'ce
 
 barUK = px.bar(UK, x="age", y=["male", "female"], barmode="group")
 barUK.update_layout(title='Male vs Female Population', yaxis_title='Population')
-UK['Total'] = UK['male'] + UK['female']
+UK['total'] = UK['male'] + UK['female']
 
 male = UK['male'].sum()
 female = UK['female'].sum()
@@ -116,8 +120,8 @@ GIS.add_trace(go.Scattermapbox(
         symbol='drinking-water',
         size=15,
         color='rgb(0, 0, 255)',
-
     ),
+    showlegend=False
 ))
 GIS.add_trace(go.Scattermapbox(
     lat=lat,
@@ -131,13 +135,14 @@ GIS.add_trace(go.Scattermapbox(
         opacity=0.4
     ),
     hoverinfo='text',
+    showlegend=True
 ))
 GIS.update_layout(
     autosize=True,
     height=700,
     width=700,
     hovermode='closest',
-    showlegend=False,
+
     mapbox=dict(
         accesstoken=mapbox_access_token,
         bearing=0,
@@ -158,9 +163,9 @@ SIDEBAR_STYLE = {
     "top": 0,
     "left": 0,
     "bottom": 0,
-    "width": "16rem",
+    "width": "14rem",
     "padding": "2rem 1rem",
-    "background-color": "#f8f9fa",
+    "background-color": "#000000",
 }
 
 # the styles for the main content position it to the right of the sidebar and
@@ -173,10 +178,8 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.H2("Attack on Cholera", className="display-4"),
-        html.P(
-            "by"
-        ),
+        html.H2("Attack on Cholera", className="display-4", style={'color':'white'}),
+        html.P("by", style={'color':'white'}),
         html.A(
             "Jonathan Ma", href="https://jonathan-ma.github.io/"
         ),
@@ -258,12 +261,15 @@ def render_page_content(pathname):
                     data=df.to_dict('records'),
                     fixed_rows={'headers': True, 'data': 0},
                     page_action='none',
-                    style_table={'height': '100vh', 'width': '360px'},
+                    style_table={'height': '100vh', 'width': '410px'},
                     style_header={
                         'backgroundColor': 'rgb(230, 230, 230)',
                         'fontWeight': 'bold'
                     },
                     style_cell_conditional=[
+                        {'if': {'column_id': 'Attack'}, 'padding-right':'10px','padding-left': '10px'},
+                        {'if': {'column_id': 'Death'}, 'padding-right':'10px'},
+                        {'if': {'column_id': 'Total'}, 'padding-right':'10px'},
                         {'if': {'column_id': 'Total Attacks', },
                          'display': 'None', },
                         {'if': {'column_id': 'Total Deaths', },
@@ -271,7 +277,7 @@ def render_page_content(pathname):
                         {'if': {'column_id': 'Date'},
                          'text-align': 'center'},
                     ]
-                ), style={'display': 'inline-block', 'overflow': 'auto', 'width': '361', 'margin-left': '10px', 'margin-top': '10px', "border-bottom": "1px black solid", "border-left": "1px black solid"}
+                ), style={'display': 'inline-block', 'overflow': 'auto', 'width': '365', 'margin-left': '10px', 'margin-top': '10px', "border": "1px black solid"}
             ),
             html.Div(
                 dcc.Graph(id="graph", figure=fig,
@@ -304,7 +310,7 @@ def render_page_content(pathname):
                     {'if': {'column_id': 'Female'}, 'width': '50px'},
                     {'if': {'column_id': 'Age'}, 'text-align': 'center'}
                 ]
-            ), style={'border-bottom': '1px solid black', 'border-left': '1px solid black', 'display': 'inline-block', 'overflow': 'auto', 'margin-left': '10px', 'margin-top': '10px'}),
+            ), style={'border': '1px solid black', 'display': 'inline-block', 'overflow': 'auto', 'margin-left': '10px', 'margin-top': '10px'}),
             html.Div(
                 dcc.Graph(figure=fig2),
                 style={'border': '1px solid black', 'display': 'inline-block', 'width': '750px', 'margin-top': '10px', 'margin-left': '10px'}
@@ -327,9 +333,9 @@ def render_page_content(pathname):
                         },
                         style_cell_conditional=[
                             {'if': {'column_id': 'age'}, 'width': '100px', 'text-align': 'center'},
-                            {'if': {'column_id': 'male'}, 'width': '100px'},
-                            {'if': {'column_id': 'female'}, 'width': '100px'},
-                            {'if': {'column_id': 'Total'}, 'width': '100px'}]
+                            {'if': {'column_id': 'male'}, 'width': '100px', 'padding-left': '10px', 'padding-right': '10px'},
+                            {'if': {'column_id': 'female'}, 'width': '100px', 'padding-left': '10px', 'padding-right': '10px'},
+                            {'if': {'column_id': 'total'}, 'width': '100px', 'padding-left': '10px', 'padding-right': '10px'}]
                     ), style={'width': '401px', 'height': '311px', 'margin-left': '5px', 'border': '1px solid black', 'display': 'inline-block', 'overflow': 'auto'}
                 ),
                 html.Div(dcc.Graph(figure=pieMf, style={'height': '309px'}),
