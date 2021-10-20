@@ -228,8 +228,7 @@ def render_page_content(pathname):
 
 
             '''),
-                    html.Td(dcc.Link(html.Img(src=icon1['Slide1'], style={'height': '50%', 'width': '50%'}), href='/getinfo')
-                            ),
+                    dbc.CardImg(src=icon1['Slide1'], style={'height': '50%', 'width': '50%'}),
                     dcc.Markdown('''
                 *Each hash mark represents a cholera death*\n
                 By hashing the locations of each death, Snow was able to identify a common factor of the victims; they were
