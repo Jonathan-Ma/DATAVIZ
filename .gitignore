@@ -1,5 +1,2 @@
-venv
 .idea
-*.pyc
-.env
-.DS_Store
+assets
