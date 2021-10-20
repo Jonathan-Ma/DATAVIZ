@@ -57,9 +57,9 @@ df['Total Deaths'] = b
 # data for line chart and title change for y axes
 fig = px.line()
 
-fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Deaths'], mode='markers', name='Total Deaths',marker_color="#000000"))
-fig.add_trace(go.Scatter(x=df['Date'], y=df['Death'], mode='lines', name='Deaths',marker_color="#000000"))
-fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Attacks'], mode='markers', name='Total Attacks',marker_color="#B8561A"))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Deaths'], mode='markers', name='Total Deaths', marker_color="#000000"))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Death'], mode='lines', name='Deaths', marker_color="#000000"))
+fig.add_trace(go.Scatter(x=df['Date'], y=df['Total Attacks'], mode='markers', name='Total Attacks', marker_color="#B8561A"))
 fig.add_trace(go.Scatter(x=df['Date'], y=df['Attack'], mode='lines', name='Attacks', marker_color="#B8561A"))
 
 fig.update_yaxes(title_text='Cases', title_font_size=20)
@@ -74,9 +74,9 @@ fig2 = px.bar(naples, x="Age", y=["Male", "Female"], barmode="group")
 fig2.update_layout(title={'text': 'Age and Sex Death Comparison', 'xanchor': 'center', 'x': 0.5, 'yanchor': 'top'},
                    yaxis_title="Deaths",
                    font=dict(
-                    family="Courier New, monospace",
-                    size=20,
-))
+                       family="Courier New, monospace",
+                       size=20,
+                   ))
 
 # -----------------------------------------------------------------------------
 # PART THREE OF PROJECT
@@ -92,9 +92,8 @@ labels = ['male', 'female']
 values = [male, female]
 pieMf = go.Figure(data=[go.Pie(values=values, labels=labels, sort=False)])
 
-pieMale = px.pie(UK, values='male', names='age',color_discrete_sequence=px.colors.sequential.Blues_r)
+pieMale = px.pie(UK, values='male', names='age', color_discrete_sequence=px.colors.sequential.Blues_r)
 pieFemale = px.pie(UK, values='female', names='age', color_discrete_sequence=px.colors.sequential.Purples_r)
-
 
 pieMale.update_layout(title='Male Population Age Distribution')
 pieFemale.update_layout(title='Female Population Age Distribution')
@@ -179,8 +178,8 @@ CONTENT_STYLE = {
 
 sidebar = html.Div(
     [
-        html.H2("Attack on Cholera", className="display-4", style={'color':'white'}),
-        html.P("by", style={'color':'white'}),
+        html.H2("Attack on Cholera", className="display-4", style={'color': 'white'}),
+        html.P("by", style={'color': 'white'}),
         html.A(
             "Jonathan Ma", href="https://jonathan-ma.github.io/"
         ),
@@ -205,10 +204,14 @@ content = html.Div(id="page-content", style=CONTENT_STYLE)
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
-
 # -----------------------------------------------------------------------------
 # CALLBACK
 # -----------------------------------------------------------------------------
+icon1 = {
+    'Slide1': '/assets/Cholera-map-zoom.png',
+}
+
+
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
 def render_page_content(pathname):
     if pathname == "/":
@@ -225,8 +228,8 @@ def render_page_content(pathname):
 
 
             '''),
-                    html.Div(html.Img(src='./assets/Cholera-map-zoom.png', style={'height': '50%', 'width': '50%'})
-                             ),
+                    html.Td(dcc.Link(html.Img(src=icon1['Slide1'], style={'height': '50%', 'width': '50%'}), href='/getinfo')
+                            ),
                     dcc.Markdown('''
                 *Each hash mark represents a cholera death*\n
                 By hashing the locations of each death, Snow was able to identify a common factor of the victims; they were
@@ -268,9 +271,9 @@ def render_page_content(pathname):
                         'fontWeight': 'bold'
                     },
                     style_cell_conditional=[
-                        {'if': {'column_id': 'Attack'}, 'padding-right':'10px','padding-left': '10px'},
-                        {'if': {'column_id': 'Death'}, 'padding-right':'10px'},
-                        {'if': {'column_id': 'Total'}, 'padding-right':'10px'},
+                        {'if': {'column_id': 'Attack'}, 'padding-right': '10px', 'padding-left': '10px'},
+                        {'if': {'column_id': 'Death'}, 'padding-right': '10px'},
+                        {'if': {'column_id': 'Total'}, 'padding-right': '10px'},
                         {'if': {'column_id': 'Total Attacks', },
                          'display': 'None', },
                         {'if': {'column_id': 'Total Deaths', },
@@ -290,7 +293,7 @@ def render_page_content(pathname):
                               'modeBarButtonsToRemove': ['toImage'],
                           },
                           style={'height': '597px'}
-                          ), style={'display': 'inline-block', 'width': '750px', 'height': '600px', 'margin-left': '10px', "border": "1px black solid", 'margin-top':'10px'}
+                          ), style={'display': 'inline-block', 'width': '750px', 'height': '600px', 'margin-left': '10px', "border": "1px black solid", 'margin-top': '10px'}
             )
         )
 
