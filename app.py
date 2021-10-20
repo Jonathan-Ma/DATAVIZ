@@ -11,6 +11,7 @@ import plotly.graph_objects as go
 mapbox_access_token = 'pk.eyJ1IjoibGlnZ21hIiwiYSI6ImNrdTZhdzJ5NDU4a3Eyd28yN200Y2hjcWYifQ.Srqhm05N6Silps_KAbRq4g'
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 # -----------------------------------------------------------------------------
 # FILE READING
 # -----------------------------------------------------------------------------
@@ -367,5 +368,4 @@ def render_page_content(pathname):
 
 
 if __name__ == "__main__":
-    server = app.server
     app.run_server(debug=True)
