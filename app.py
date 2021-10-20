@@ -10,7 +10,8 @@ import plotly.graph_objects as go
 
 mapbox_access_token = 'pk.eyJ1IjoibGlnZ21hIiwiYSI6ImNrdTZhdzJ5NDU4a3Eyd28yN200Y2hjcWYifQ.Srqhm05N6Silps_KAbRq4g'
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__)
+# external_stylesheets=[dbc.themes.BOOTSTRAP]
 server = app.server
 # -----------------------------------------------------------------------------
 # FILE READING
