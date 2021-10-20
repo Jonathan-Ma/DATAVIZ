@@ -225,7 +225,7 @@ def render_page_content(pathname):
 
 
             '''),
-                    html.Div(html.Img(src='./assets/Cholera-map-zoom.jpg', style={'height': '50%', 'width': '50%'})
+                    html.Div(html.Img(src='./assets/Cholera-map-zoom.png', style={'height': '50%', 'width': '50%'})
                              ),
                     dcc.Markdown('''
                 *Each hash mark represents a cholera death*\n
